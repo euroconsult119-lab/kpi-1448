@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم تحسين المشهد البصري | يوروكونسلت</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -75,32 +79,19 @@
         ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #10b981; }
 
-        /* ستايل المودال الهجري */
         #hijriModal { transition: opacity 0.3s ease; }
     </style>
 </head>
 <body class="antialiased font-sans">
 
-    <!-- نافذة منبثقة للتقويم الهجري (تظهر عند طلب تاريخ جديد) -->
+    <!-- نافذة منبثقة للتقويم الهجري -->
     <div id="hijriModal" class="fixed inset-0 bg-black/90 z-[9999] flex justify-center items-center opacity-0 pointer-events-none backdrop-blur-sm">
         <div class="glass-card p-8 rounded-3xl w-11/12 max-w-md border border-brand-gold shadow-[0_0_40px_rgba(212,175,55,0.3)]">
             <h3 class="text-2xl font-bold text-brand-goldLight mb-6 text-center"><i class="fa-regular fa-calendar-plus mr-2"></i>إضافة تاريخ مستخلص جديد</h3>
             <div class="grid grid-cols-3 gap-3 mb-8">
-                <!-- اليوم -->
-                <div>
-                    <label class="block text-brand-neon mb-2 text-sm text-center">اليوم</label>
-                    <select id="hDay" class="custom-select text-center p-2"></select>
-                </div>
-                <!-- الشهر -->
-                <div>
-                    <label class="block text-brand-neon mb-2 text-sm text-center">الشهر</label>
-                    <select id="hMonth" class="custom-select text-center p-2"></select>
-                </div>
-                <!-- السنة -->
-                <div>
-                    <label class="block text-brand-neon mb-2 text-sm text-center">السنة</label>
-                    <select id="hYear" class="custom-select text-center p-2"></select>
-                </div>
+                <div><label class="block text-brand-neon mb-2 text-sm text-center">اليوم</label><select id="hDay" class="custom-select text-center p-2"></select></div>
+                <div><label class="block text-brand-neon mb-2 text-sm text-center">الشهر</label><select id="hMonth" class="custom-select text-center p-2"></select></div>
+                <div><label class="block text-brand-neon mb-2 text-sm text-center">السنة</label><select id="hYear" class="custom-select text-center p-2"></select></div>
             </div>
             <div class="flex gap-4">
                 <button onclick="confirmHijriDate()" class="btn-neon flex-1 py-3 rounded-xl text-white font-bold">تأكيد وإضافة</button>
@@ -127,7 +118,7 @@
                 
                 <div class="space-y-4 px-2 md:px-6">
                     <input type="text" id="username" placeholder="اسم المستخدم" class="custom-input font-bold">
-                    <input type="password" id="password" placeholder="كلمة المرور" class="custom-input font-bold">
+                    <input type="password" id="password" placeholder="كلمة المرور" class="custom-input font-bold" onkeypress="handleEnter(event)">
                     <button onclick="login()" id="loginBtn" class="btn-neon w-full py-4 rounded-xl text-white font-bold text-xl mt-2 shadow-lg flex justify-center items-center gap-3">
                         <span id="loginText">دخول للنظام</span>
                         <div id="loginLoader" class="loader hidden"></div>
@@ -141,18 +132,31 @@
         </div>
     </div>
 
-    <!-- تأثيرات الخلفية -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <div id="particles-js"></div>
     <video autoplay loop muted playsinline class="video-background"><source src="https://dareenmedia.com/wp-content/uploads/2023/08/video1.mp4" type="video/mp4"></video>
     <video autoplay loop muted playsinline class="video-background2"><source src="https://dareenmedia.com/wp-content/uploads/2023/08/video1.mp4" type="video/mp4"></video>
     <div class="glow-orb orb-1"></div><div class="glow-orb orb-2"></div><div class="glow-orb orb-3"></div>
 
+    <!-- الناف بار (مضاف إليه قسم بيانات المستخدم وزر تسجيل الخروج) -->
     <header class="w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center relative z-10 glass-card border-x-0 border-t-0 rounded-none mb-8 gap-4">
         <div class="flex items-center gap-4 md:gap-8">
             <img src="https://salogos.b-cdn.net/logos/png/1774895357588-ejqvv5kx.png" alt="الهيئة الملكية" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
             <img src="https://kidana.com.sa/wp-content/uploads/2025/05/kidana-logo-gold-06.png" alt="كدانة" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
         </div>
+
+        <!-- 🌟 قسم التحكم والمستخدم (مخفي حتى تسجيل الدخول) -->
+        <div id="userControls" class="hidden flex items-center gap-4 bg-black/40 px-5 py-2.5 rounded-2xl border border-brand-light/30 shadow-inner">
+            <div class="flex items-center gap-2 text-brand-goldLight font-bold text-sm md:text-base">
+                <i class="fa-solid fa-user-shield text-brand-neon"></i>
+                <span id="displayUsername"></span>
+            </div>
+            <div class="w-px h-6 bg-gray-600"></div>
+            <button onclick="logout()" class="text-red-400 hover:text-white hover:bg-red-500/30 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-2 text-sm border border-transparent hover:border-red-500/50">
+                <i class="fa-solid fa-power-off"></i> خروج
+            </button>
+        </div>
+
         <div class="flex items-center">
             <img src="https://image2url.com/r2/default/images/1773558610625-b250b6cd-d224-421f-b749-0894a9cf0602.png" alt="يوروكونسلت" class="h-10 md:h-12 w-auto object-contain filter brightness-0 invert">
         </div>
@@ -173,7 +177,7 @@
             <button class="tab-btn" onclick="loadDashboard('أعمال الدهانات التجميلية (م2) ', this)"><i class="fa-solid fa-paint-roller ml-2 text-brand-goldLight"></i>أعمال الدهانات التجميلية</button>
         </div>
 
-        <!-- لوحة تحكم الأدمن (تم التطوير لتشمل الحقول التلقائية وزر التقويم) -->
+        <!-- لوحة تحكم الأدمن -->
         <div id="adminPanel" class="hidden mb-10 glass-card rounded-3xl p-6 md:p-8 border-2 border-brand-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold rounded-full filter blur-[80px] opacity-20 z-0"></div>
             <h3 class="text-2xl font-bold text-brand-goldLight mb-6 border-b border-brand-light/30 pb-4 relative z-10">
@@ -249,6 +253,7 @@
         </div>
 
         <div id="dataContainer" class="fade-container">
+            <!-- المخطط البياني -->
             <div class="glass-card rounded-3xl p-4 md:p-8 mb-10 shadow-2xl relative">
                 <h3 class="text-xl md:text-2xl font-bold text-brand-goldLight mb-6 flex items-center gap-3">
                     <i class="fa-solid fa-chart-line text-brand-neon"></i> لوحة الإنجاز والمؤشرات الزمنية
@@ -258,6 +263,7 @@
                 </div>
             </div>
 
+            <!-- معرض الصور المحدث بالكامل -->
             <div class="glass-card rounded-3xl p-6 md:p-10 relative shadow-2xl border-t border-brand-neon/30">
                 <h3 class="text-2xl md:text-3xl font-bold text-brand-neon mb-8 flex items-center gap-3 border-b border-brand-light/30 pb-4">
                     <i class="fa-solid fa-photo-film text-brand-gold"></i> سجل الإثباتات والتوثيق البصري التفصيلي
@@ -279,20 +285,75 @@
         Chart.defaults.color = '#e5e7eb';
         Chart.defaults.font.family = 'Cairo';
         
-        // 🚀 ضع رابطك الجديد هنا
+        // 🚀 رابط السيرفر الخاص بك
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylMObl_a-X6gPx_A7KycEQoPllHaEiGQO1Qh14PMshv0P9e6BHSlPfkbJFwUKhZ4vN/exec';
         
         let currentRole = '';
         let currentUser = '';
         let activeChartName = 'إزاله المخلفات والأنقاض';
         let myChart = null;
-        let currentChartRows = []; // مصفوفة لتخزين البيانات لعمل الـ Auto-fill
+        let currentChartRows = []; 
+
+        // 🌟 متغيرات نظام الجلسة (Session Timeout)
+        let sessionTimer;
+        const SESSION_LIMIT_MS = 30 * 60 * 1000; // 30 دقيقة
 
         particlesJS('particles-js', {
             "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#D4AF37" }, "shape": { "type": "circle" }, "opacity": { "value": 0.3, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#10b981", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
         });
 
-        // 🌟 تهيئة وتجهيز التقويم الهجري في النافذة المنبثقة
+        // 🌟 إدارة الجلسات (Session Management)
+        function startSessionTimer() {
+            clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(() => {
+                alert("⏳ انتهت جلسة العمل بسبب الخمول (30 دقيقة). يرجى تسجيل الدخول مجدداً لحماية البيانات.");
+                logout();
+            }, SESSION_LIMIT_MS);
+        }
+
+        function resetSessionTimer() {
+            if (currentUser !== '') {
+                startSessionTimer();
+            }
+        }
+
+        // تجديد الجلسة عند أي نشاط من المستخدم
+        document.addEventListener('mousemove', resetSessionTimer);
+        document.addEventListener('keypress', resetSessionTimer);
+        document.addEventListener('click', resetSessionTimer);
+        document.addEventListener('scroll', resetSessionTimer);
+
+        function handleEnter(e) {
+            if(e.key === 'Enter') login();
+        }
+
+        // 🌟 دالة تسجيل الخروج الآمن
+        function logout() {
+            // تفريغ البيانات
+            currentUser = '';
+            currentRole = '';
+            currentChartRows = [];
+            clearTimeout(sessionTimer);
+
+            // إخفاء اللوحات
+            document.getElementById('userControls').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            
+            // إعادة تعيين الحقول
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            
+            // إظهار شاشة الدخول بأنيميشن
+            const overlay = document.getElementById('loginOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.style.opacity = '1', 50);
+
+            // إعادة تعيين الداش بورد للوضع الافتراضي
+            if(myChart) myChart.destroy();
+            document.getElementById('galleryContainer').innerHTML = '';
+        }
+
+        // تهيئة التقويم الهجري
         function initHijriModal() {
             const hDay = document.getElementById('hDay');
             const hMonth = document.getElementById('hMonth');
@@ -306,13 +367,11 @@
         initHijriModal();
 
         function openHijriModal() {
-            const modal = document.getElementById('hijriModal');
-            modal.classList.remove('pointer-events-none', 'opacity-0');
+            document.getElementById('hijriModal').classList.remove('pointer-events-none', 'opacity-0');
         }
 
         function closeHijriModal() {
-            const modal = document.getElementById('hijriModal');
-            modal.classList.add('pointer-events-none', 'opacity-0');
+            document.getElementById('hijriModal').classList.add('pointer-events-none', 'opacity-0');
         }
 
         function confirmHijriDate() {
@@ -322,33 +381,23 @@
             const newDate = `${d}/${m}/${y}`;
             
             const select = document.getElementById('hijriDateSelect');
-            
-            // التحقق إذا كان التاريخ موجود مسبقاً
             let exists = false;
             for(let i=0; i<select.options.length; i++){
                 if(select.options[i].value === newDate){
-                    exists = true;
-                    select.selectedIndex = i;
-                    break;
+                    exists = true; select.selectedIndex = i; break;
                 }
             }
-            
             if(!exists) {
                 const opt = document.createElement('option');
-                opt.value = newDate;
-                opt.text = newDate + " (جديد)";
-                select.appendChild(opt);
-                select.value = newDate;
+                opt.value = newDate; opt.text = newDate + " (جديد)";
+                select.appendChild(opt); select.value = newDate;
             }
-            
-            autoFillData(); // تفريغ الخانات لأن التاريخ جديد
+            autoFillData(); 
             closeHijriModal();
         }
 
-        // 🌟 دالة الاستدعاء التلقائي (Auto-fill) للبيانات عند اختيار تاريخ
         function autoFillData() {
             const selectedDate = document.getElementById('hijriDateSelect').value;
-            // البحث في المصفوفة المحفوظة
             const rowData = currentChartRows.find(r => String(r[0]).trim() === String(selectedDate).trim());
             
             if(rowData) {
@@ -358,7 +407,6 @@
                 document.getElementById('cumActualInput').value = rowData[4] || 0;
                 document.getElementById('remarkInput').value = rowData[5] || '';
             } else {
-                // تاريخ جديد تماماً، نقوم بتصفير الخانات
                 document.getElementById('plannedInput').value = '';
                 document.getElementById('actualInput').value = '';
                 document.getElementById('cumPlannedInput').value = '';
@@ -373,6 +421,7 @@
                     return await new Promise((resolve) => {
                         const success = res => resolve(res);
                         const fail = err => resolve({ error: "خطأ من جوجل: " + err.message });
+                        
                         if(payload.action === 'login') google.script.run.withSuccessHandler(success).withFailureHandler(fail).authenticateUser(payload.username, payload.password);
                         else if(payload.action === 'getChartData') google.script.run.withSuccessHandler(success).withFailureHandler(fail).getChartData(payload.chartName);
                         else if(payload.action === 'getImages') google.script.run.withSuccessHandler(res => success({images: res})).withFailureHandler(fail).getImages(payload.chartName);
@@ -384,9 +433,9 @@
                     const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
                     const textResult = await response.text(); 
                     try { return JSON.parse(textResult); } 
-                    catch(e) { return { error: "استجابة غير مفهومة من السيرفر. تأكد من نشر الرابط." }; }
+                    catch(e) { return { error: "استجابة غير مفهومة من السيرفر." }; }
                 }
-            } catch (error) { return { error: "مشكلة في شبكة الاتصال، السيرفر لا يستجيب." }; }
+            } catch (error) { return { error: "مشكلة في الاتصال." }; }
         }
 
         async function login() {
@@ -396,7 +445,7 @@
             const loader = document.getElementById('loginLoader');
             const err = document.getElementById('loginError');
             
-            if(!user || !pass) { err.innerHTML = 'الرجاء إدخال البيانات كاملة'; err.classList.remove('hidden'); return; }
+            if(!user || !pass) { err.innerHTML = '<i class="fa-solid fa-triangle-exclamation ml-1"></i> الرجاء إدخال البيانات'; err.classList.remove('hidden'); return; }
             btn.disabled = true; loader.classList.remove('hidden'); err.classList.add('hidden');
 
             const res = await fetchAPI({ action: 'login', username: user, password: pass });
@@ -404,12 +453,18 @@
             if(res && res.success) {
                 currentRole = res.role;
                 currentUser = user;
+                
+                // إظهار تحكم المستخدم وبدء المؤقت
+                document.getElementById('userControls').classList.remove('hidden');
+                document.getElementById('displayUsername').innerText = currentUser;
+                startSessionTimer();
+
                 document.getElementById('loginOverlay').style.opacity = '0';
                 setTimeout(() => document.getElementById('loginOverlay').style.display = 'none', 500);
                 if(currentRole === 'admin') document.getElementById('adminPanel').classList.remove('hidden');
                 loadDashboard(activeChartName, document.querySelector('.tab-btn.active'));
             } else {
-                err.innerHTML = res.error || 'بيانات الدخول غير صحيحة.';
+                err.innerHTML = '<i class="fa-solid fa-triangle-exclamation ml-1"></i> ' + (res.error || 'بيانات الدخول غير صحيحة.');
                 err.classList.remove('hidden');
                 btn.disabled = false; loader.classList.add('hidden');
             }
@@ -431,20 +486,19 @@
                 dataContainer.classList.remove('fade-out');
 
                 const chartRes = await fetchAPI({ action: 'getChartData', chartName: chartName });
-                
                 if (chartRes && chartRes.error) {
-                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ في المخطط: ${chartRes.error}</div>`;
+                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ: ${chartRes.error}</div>`;
                     return;
                 }
 
-                gallery.innerHTML = '<div class="w-full text-center py-12"><div class="loader border-brand-neon border-t-brand-gold w-12 h-12 mb-4"></div><p class="text-brand-goldLight font-bold">جاري جلب الصور والإثباتات...</p></div>';
+                gallery.innerHTML = '<div class="w-full text-center py-12"><div class="loader border-brand-neon border-t-brand-gold w-12 h-12 mb-4"></div><p class="text-brand-goldLight font-bold">جاري جلب الصور...</p></div>';
                 const imgRes = await fetchAPI({ action: 'getImages', chartName: chartName });
                 
                 dataContainer.classList.add('fade-out');
                 await new Promise(resolve => setTimeout(resolve, 300));
 
                 if (imgRes && imgRes.error) {
-                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ في الصور: ${imgRes.error}</div>`;
+                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ: ${imgRes.error}</div>`;
                 } else {
                     if (chartRes && chartRes.rows) renderChart(chartRes);
                     if (imgRes && imgRes.images) renderGallery(imgRes.images);
@@ -452,16 +506,15 @@
                 }
 
                 dataContainer.classList.remove('fade-out');
-
             } catch (err) {
-                gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-xmark text-4xl mb-3 block"></i>حدث خطأ غير متوقع: ${err.message}</div>`;
+                gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-xmark text-4xl mb-3 block"></i>خطأ: ${err.message}</div>`;
                 dataContainer.classList.remove('fade-out');
             }
         }
 
         function renderChart(data) {
             try {
-                currentChartRows = data.rows; // حفظ البيانات للملء التلقائي
+                currentChartRows = data.rows; 
 
                 const labels = data.rows.map(r => r[0]); 
                 const planned = data.rows.map(r => r[1] || 0);
