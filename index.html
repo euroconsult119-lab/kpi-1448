@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم تحسين المشهد البصري | يوروكونسلت</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            dark: '#011c14', main: '#043b2a', light: '#047857',
+                            neon: '#10b981', glow: '#34d399', gold: '#D4AF37', goldLight: '#FBE8A6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #011a14; color: #ffffff; overflow-x: hidden; position: relative; min-height: 100vh; margin: 0; }
+        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -2; }
+        .video-background, .video-background2 { position: fixed; bottom: 250px; width: 25vw; min-width: 450px; max-width: 550px; height: auto; z-index: -3; opacity: 0.85; mix-blend-mode: screen; filter: hue-rotate(-20deg) saturate(220%) brightness(115%); pointer-events: none; border-radius: 1rem; }
+        .video-background { left: 10px; } .video-background2 { right: 10px; }
+        
+        .glow-orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; animation: float 10s infinite alternate ease-in-out; opacity: 0.5; }
+        .orb-1 { width: 400px; height: 400px; background: #064e3b; top: -10%; right: -10%; }
+        .orb-2 { width: 300px; height: 300px; background: #10b981; bottom: -10%; left: -10%; animation-delay: -5s; }
+        .orb-3 { width: 250px; height: 250px; background: #D4AF37; top: 40%; left: 40%; animation-duration: 15s; opacity: 0.2; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 50px) scale(1.2); } }
+
+        .glass-card { background: rgba(6, 78, 59, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(16, 185, 129, 0.3); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(16, 185, 129, 0.1); position: relative; overflow: hidden; }
+        .glass-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #10b981, #D4AF37, #10b981, transparent); background-size: 200% auto; animation: shine 3s linear infinite; z-index: 10; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .tab-btn { background: rgba(2, 44, 34, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); color: #fff; padding: 12px 24px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; flex: 1; text-align: center; min-width: 200px; backdrop-filter: blur(5px); }
+        .tab-btn:hover { background: rgba(16, 185, 129, 0.2); border-color: #10b981; transform: translateY(-2px); }
+        .tab-btn.active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(6, 78, 59, 0.8)); border-color: #D4AF37; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); color: #FBE8A6; }
+
+        #loginOverlay { position: fixed; inset: 0; background: rgba(1, 26, 20, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; }
+        .custom-input { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(16,185,129,0.3); color: white; border-radius: 12px; padding: 15px 20px; outline: none; transition: all 0.3s ease; text-align: center; font-size: 1.1rem; }
+        .custom-input:focus { border-color: #10b981; box-shadow: 0 0 20px rgba(16,185,129,0.3); background: rgba(0,0,0,0.6); }
+        .custom-input::placeholder { color: rgba(255,255,255,0.4); font-weight: normal; }
+
+        .file-drop-area { border: 2px dashed rgba(16, 185, 129, 0.4); background: rgba(2, 44, 34, 0.3); backdrop-filter: blur(4px); transition: all 0.3s ease; cursor: pointer; position: relative; }
+        .file-drop-area:hover { border-color: #D4AF37; background: rgba(212, 175, 55, 0.1); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2) inset; }
+        .file-input { display: none; }
+
+        .btn-neon { background: linear-gradient(45deg, #047857, #10b981); position: relative; z-index: 1; overflow: hidden; transition: all 0.3s ease; }
+        .btn-neon::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #10b981, #D4AF37); z-index: -1; transition: opacity 0.3s ease; opacity: 0; }
+        .btn-neon:hover::after { opacity: 1; }
+        .btn-neon:hover:not(:disabled) { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); transform: translateY(-2px); }
+        .btn-neon:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        select.custom-select { background: rgba(2, 44, 34, 0.6); border: 1px solid rgba(16, 185, 129, 0.4); color: white; padding: 12px; border-radius: 12px; width: 100%; outline: none; appearance: none; }
+        select.custom-select:focus { border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+
+        .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .fade-container { transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; opacity: 1; transform: translateY(0); }
+        .fade-out { opacity: 0; transform: translateY(15px); }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+        /* ستايل المودال الهجري */
+        #hijriModal { transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body class="antialiased font-sans">
+
+    <!-- نافذة منبثقة للتقويم الهجري (تظهر عند طلب تاريخ جديد) -->
+    <div id="hijriModal" class="fixed inset-0 bg-black/90 z-[9999] flex justify-center items-center opacity-0 pointer-events-none backdrop-blur-sm">
+        <div class="glass-card p-8 rounded-3xl w-11/12 max-w-md border border-brand-gold shadow-[0_0_40px_rgba(212,175,55,0.3)]">
+            <h3 class="text-2xl font-bold text-brand-goldLight mb-6 text-center"><i class="fa-regular fa-calendar-plus mr-2"></i>إضافة تاريخ مستخلص جديد</h3>
+            <div class="grid grid-cols-3 gap-3 mb-8">
+                <!-- اليوم -->
+                <div>
+                    <label class="block text-brand-neon mb-2 text-sm text-center">اليوم</label>
+                    <select id="hDay" class="custom-select text-center p-2"></select>
+                </div>
+                <!-- الشهر -->
+                <div>
+                    <label class="block text-brand-neon mb-2 text-sm text-center">الشهر</label>
+                    <select id="hMonth" class="custom-select text-center p-2"></select>
+                </div>
+                <!-- السنة -->
+                <div>
+                    <label class="block text-brand-neon mb-2 text-sm text-center">السنة</label>
+                    <select id="hYear" class="custom-select text-center p-2"></select>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="confirmHijriDate()" class="btn-neon flex-1 py-3 rounded-xl text-white font-bold">تأكيد وإضافة</button>
+                <button onclick="closeHijriModal()" class="bg-gray-800 hover:bg-gray-700 flex-1 py-3 rounded-xl text-white font-bold border border-gray-600 transition">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginOverlay">
+        <div class="glass-card p-6 md:p-10 rounded-3xl text-center max-w-lg md:max-w-xl w-11/12 border-2 border-brand-neon shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[450px]">
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-dark via-brand-main to-brand-dark opacity-90 z-0"></div>
+            <div class="absolute inset-0 opacity-20 z-0" style="background-image: radial-gradient(rgba(16,185,129,0.5) 1px, transparent 1px); background-size: 20px 20px;"></div>
+            
+            <div class="relative z-10 flex-grow flex flex-col justify-center">
+                <div class="flex justify-center items-center gap-4 sm:gap-6 mb-6 px-4">
+                    <img src="https://kidana.com.sa/wp-content/uploads/2025/05/kidana-logo-gold-06.png" alt="كدانة" class="h-10 sm:h-12 w-auto max-w-[40%] object-contain filter brightness-0 invert drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]">
+                    <div class="w-px h-10 sm:h-12 bg-brand-light/50"></div>
+                    <img src="https://image2url.com/r2/default/images/1773558610625-b250b6cd-d224-421f-b749-0894a9cf0602.png" alt="يوروكونسلت" class="h-8 sm:h-10 w-auto max-w-[40%] object-contain filter brightness-0 invert drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]">
+                </div>
+                
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-2 tracking-wide">بوابة الدخول</h2>
+                <p class="text-brand-glow mb-8 text-sm md:text-base">نظام أرشفة ومتابعة المشهد البصري</p>
+                
+                <div class="space-y-4 px-2 md:px-6">
+                    <input type="text" id="username" placeholder="اسم المستخدم" class="custom-input font-bold">
+                    <input type="password" id="password" placeholder="كلمة المرور" class="custom-input font-bold">
+                    <button onclick="login()" id="loginBtn" class="btn-neon w-full py-4 rounded-xl text-white font-bold text-xl mt-2 shadow-lg flex justify-center items-center gap-3">
+                        <span id="loginText">دخول للنظام</span>
+                        <div id="loginLoader" class="loader hidden"></div>
+                    </button>
+                </div>
+                <p id="loginError" class="text-red-400 mt-4 hidden font-bold text-sm bg-red-900/40 border border-red-500 py-3 rounded-lg mx-2 md:mx-6"></p>
+            </div>
+            <div class="relative z-10 mt-6 pt-4 border-t border-brand-light/20">
+                <p class="text-[11px] text-gray-400 font-normal">جميع الحقوق محفوظة فريق التطوير البرمجي - شركة يوروكونسلت 2026 &copy;</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- تأثيرات الخلفية -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <div id="particles-js"></div>
+    <video autoplay loop muted playsinline class="video-background"><source src="https://dareenmedia.com/wp-content/uploads/2023/08/video1.mp4" type="video/mp4"></video>
+    <video autoplay loop muted playsinline class="video-background2"><source src="https://dareenmedia.com/wp-content/uploads/2023/08/video1.mp4" type="video/mp4"></video>
+    <div class="glow-orb orb-1"></div><div class="glow-orb orb-2"></div><div class="glow-orb orb-3"></div>
+
+    <header class="w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center relative z-10 glass-card border-x-0 border-t-0 rounded-none mb-8 gap-4">
+        <div class="flex items-center gap-4 md:gap-8">
+            <img src="https://salogos.b-cdn.net/logos/png/1774895357588-ejqvv5kx.png" alt="الهيئة الملكية" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
+            <img src="https://kidana.com.sa/wp-content/uploads/2025/05/kidana-logo-gold-06.png" alt="كدانة" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
+        </div>
+        <div class="flex items-center">
+            <img src="https://image2url.com/r2/default/images/1773558610625-b250b6cd-d224-421f-b749-0894a9cf0602.png" alt="يوروكونسلت" class="h-10 md:h-12 w-auto object-contain filter brightness-0 invert">
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pb-12 relative z-10 max-w-7xl">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 pb-2 leading-relaxed text-transparent bg-clip-text bg-gradient-to-l from-brand-goldLight to-brand-neon drop-shadow-md">
+                المخطط الزمني لإزالة الأنقاض والمخلفات
+            </h1>
+            <p class="text-brand-gold text-lg md:text-xl font-bold drop-shadow-md">وتحسين المشهد البصري للارصفة في المشاعر المقدسة وحماها</p>
+        </div>
+
+        <div class="flex flex-wrap gap-4 mb-8 justify-center" id="tabsContainer">
+            <button class="tab-btn active" onclick="loadDashboard('إزاله المخلفات والأنقاض', this)"><i class="fa-solid fa-trash-can ml-2 text-brand-goldLight"></i>إزالة المخلفات والأنقاض</button>
+            <button class="tab-btn" onclick="loadDashboard('أعمال البردورات (م.ط) ', this)"><i class="fa-solid fa-road ml-2 text-brand-goldLight"></i>أعمال البردورات</button>
+            <button class="tab-btn" onclick="loadDashboard('أعمال الانترلوك (م2)', this)"><i class="fa-solid fa-border-all ml-2 text-brand-goldLight"></i>أعمال الانترلوك</button>
+            <button class="tab-btn" onclick="loadDashboard('أعمال الدهانات التجميلية (م2) ', this)"><i class="fa-solid fa-paint-roller ml-2 text-brand-goldLight"></i>أعمال الدهانات التجميلية</button>
+        </div>
+
+        <!-- لوحة تحكم الأدمن (تم التطوير لتشمل الحقول التلقائية وزر التقويم) -->
+        <div id="adminPanel" class="hidden mb-10 glass-card rounded-3xl p-6 md:p-8 border-2 border-brand-gold shadow-[0_0_30px_rgba(212,175,55,0.15)] relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold rounded-full filter blur-[80px] opacity-20 z-0"></div>
+            <h3 class="text-2xl font-bold text-brand-goldLight mb-6 border-b border-brand-light/30 pb-4 relative z-10">
+                <i class="fa-solid fa-sliders ml-2"></i>لوحة الإدارة: تحديث الإنجاز وإرفاق الإثباتات
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative z-10">
+                <div>
+                    <label class="block text-brand-neon font-bold mb-2">تاريخ المستخلص (هجري):</label>
+                    <div class="flex gap-2">
+                        <div class="relative flex-grow">
+                            <select id="hijriDateSelect" class="custom-select pl-10 pr-4" onchange="autoFillData()">
+                                <option value="" disabled selected>اختر تاريخاً أو أضف جديد...</option>
+                            </select>
+                            <i class="fa-regular fa-calendar-days absolute right-4 top-4 text-brand-gold"></i>
+                        </div>
+                        <button onclick="openHijriModal()" class="bg-brand-main hover:bg-brand-light border border-brand-goldLight text-white px-4 rounded-xl font-bold transition flex items-center gap-2" title="إضافة تاريخ هجري جديد">
+                            <i class="fa-solid fa-plus"></i> جديد
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-brand-neon font-bold mb-2">ملاحظات واعتمادات الإدارة (تظهر على الشارت):</label>
+                    <input type="text" id="remarkInput" placeholder="أضف ملاحظتك هنا..." class="w-full bg-black/40 border border-brand-light/40 text-white rounded-xl px-4 py-[0.85rem] outline-none focus:border-brand-gold transition-all">
+                </div>
+            </div>
+
+            <!-- الحقول الرقمية للتحكم في المخطط مباشرة -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 relative z-10 bg-black/30 p-4 rounded-2xl border border-gray-700">
+                <div>
+                    <label class="block text-gray-300 font-bold mb-2 text-sm text-center">المخطط (%)</label>
+                    <input type="number" id="plannedInput" class="custom-input p-2" placeholder="0">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-bold mb-2 text-sm text-center">الفعلي (%)</label>
+                    <input type="number" id="actualInput" class="custom-input p-2" placeholder="0">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-bold mb-2 text-sm text-center">تراكمي المخطط</label>
+                    <input type="number" id="cumPlannedInput" class="custom-input p-2" placeholder="0">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-bold mb-2 text-sm text-center">تراكمي الفعلي</label>
+                    <input type="number" id="cumActualInput" class="custom-input p-2" placeholder="0">
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6 mb-8 relative z-10">
+                <div class="flex-1">
+                    <label class="block text-gray-300 font-bold mb-2 text-center text-lg"><i class="fa-solid fa-camera text-red-400 ml-2"></i>صورة "قبل" (اختياري)</label>
+                    <div class="file-drop-area rounded-xl p-4 text-center flex flex-col items-center justify-center h-32" onclick="document.getElementById('imgBefore').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                        <span id="beforeLabel" class="text-xs font-bold text-gray-300">اضغط لرفع صورة ما قبل الإزالة</span>
+                        <input type="file" id="imgBefore" accept="image/*" class="file-input" onchange="updateFileLabel('imgBefore', 'beforeLabel')">
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-brand-gold font-bold mb-2 text-center text-lg"><i class="fa-solid fa-camera-retro text-brand-neon ml-2"></i>صورة "بعد" (اختياري)</label>
+                    <div class="file-drop-area rounded-xl p-4 text-center flex flex-col items-center justify-center h-32" style="border-color: rgba(212,175,55,0.4)" onclick="document.getElementById('imgAfter').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-brand-gold mb-2"></i>
+                        <span id="afterLabel" class="text-xs font-bold text-brand-goldLight">اضغط لرفع صورة ما بعد التحسين</span>
+                        <input type="file" id="imgAfter" accept="image/*" class="file-input" onchange="updateFileLabel('imgAfter', 'afterLabel')">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center relative z-10">
+                <button onclick="submitAdminData()" id="uploadBtn" class="btn-neon w-full md:w-auto px-16 py-4 rounded-full text-white font-bold text-xl flex justify-center items-center gap-3 mx-auto">
+                    <i class="fa-solid fa-arrows-rotate"></i> <span id="uploadTxt">حفظ وتحديث البيانات</span>
+                    <div id="uploadLoader" class="loader hidden"></div>
+                </button>
+            </div>
+        </div>
+
+        <div id="dataContainer" class="fade-container">
+            <div class="glass-card rounded-3xl p-4 md:p-8 mb-10 shadow-2xl relative">
+                <h3 class="text-xl md:text-2xl font-bold text-brand-goldLight mb-6 flex items-center gap-3">
+                    <i class="fa-solid fa-chart-line text-brand-neon"></i> لوحة الإنجاز والمؤشرات الزمنية
+                </h3>
+                <div class="h-[50vh] md:h-[60vh] w-full">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 md:p-10 relative shadow-2xl border-t border-brand-neon/30">
+                <h3 class="text-2xl md:text-3xl font-bold text-brand-neon mb-8 flex items-center gap-3 border-b border-brand-light/30 pb-4">
+                    <i class="fa-solid fa-photo-film text-brand-gold"></i> سجل الإثباتات والتوثيق البصري التفصيلي
+                </h3>
+                <div id="galleryContainer" class="flex flex-col gap-8 w-full">
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full text-center py-6 mt-8 relative z-10 glass-card border-x-0 border-b-0 rounded-none">
+        <p class="text-[12px] md:text-sm text-gray-400 font-normal drop-shadow-md">
+            جميع الحقوق محفوظة فريق التطوير البرمجي - شركة يوروكونسلت 2026 &copy;
+        </p>
+    </footer>
+
+    <script>
+        Chart.defaults.color = '#e5e7eb';
+        Chart.defaults.font.family = 'Cairo';
+        
+        // 🚀 ضع رابطك الجديد هنا
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylMObl_a-X6gPx_A7KycEQoPllHaEiGQO1Qh14PMshv0P9e6BHSlPfkbJFwUKhZ4vN/exec';
+        
+        let currentRole = '';
+        let currentUser = '';
+        let activeChartName = 'إزاله المخلفات والأنقاض';
+        let myChart = null;
+        let currentChartRows = []; // مصفوفة لتخزين البيانات لعمل الـ Auto-fill
+
+        particlesJS('particles-js', {
+            "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#D4AF37" }, "shape": { "type": "circle" }, "opacity": { "value": 0.3, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#10b981", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
+        });
+
+        // 🌟 تهيئة وتجهيز التقويم الهجري في النافذة المنبثقة
+        function initHijriModal() {
+            const hDay = document.getElementById('hDay');
+            const hMonth = document.getElementById('hMonth');
+            const hYear = document.getElementById('hYear');
+            const months = ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+            
+            for(let i=1; i<=30; i++) hDay.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
+            months.forEach((m, i) => hMonth.innerHTML += `<option value="${(i+1).toString().padStart(2, '0')}">${m}</option>`);
+            for(let i=1446; i<=1455; i++) hYear.innerHTML += `<option value="${i}">${i}</option>`;
+        }
+        initHijriModal();
+
+        function openHijriModal() {
+            const modal = document.getElementById('hijriModal');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+        }
+
+        function closeHijriModal() {
+            const modal = document.getElementById('hijriModal');
+            modal.classList.add('pointer-events-none', 'opacity-0');
+        }
+
+        function confirmHijriDate() {
+            const d = document.getElementById('hDay').value;
+            const m = document.getElementById('hMonth').value;
+            const y = document.getElementById('hYear').value;
+            const newDate = `${d}/${m}/${y}`;
+            
+            const select = document.getElementById('hijriDateSelect');
+            
+            // التحقق إذا كان التاريخ موجود مسبقاً
+            let exists = false;
+            for(let i=0; i<select.options.length; i++){
+                if(select.options[i].value === newDate){
+                    exists = true;
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            if(!exists) {
+                const opt = document.createElement('option');
+                opt.value = newDate;
+                opt.text = newDate + " (جديد)";
+                select.appendChild(opt);
+                select.value = newDate;
+            }
+            
+            autoFillData(); // تفريغ الخانات لأن التاريخ جديد
+            closeHijriModal();
+        }
+
+        // 🌟 دالة الاستدعاء التلقائي (Auto-fill) للبيانات عند اختيار تاريخ
+        function autoFillData() {
+            const selectedDate = document.getElementById('hijriDateSelect').value;
+            // البحث في المصفوفة المحفوظة
+            const rowData = currentChartRows.find(r => String(r[0]).trim() === String(selectedDate).trim());
+            
+            if(rowData) {
+                document.getElementById('plannedInput').value = rowData[1] || 0;
+                document.getElementById('actualInput').value = rowData[2] || 0;
+                document.getElementById('cumPlannedInput').value = rowData[3] || 0;
+                document.getElementById('cumActualInput').value = rowData[4] || 0;
+                document.getElementById('remarkInput').value = rowData[5] || '';
+            } else {
+                // تاريخ جديد تماماً، نقوم بتصفير الخانات
+                document.getElementById('plannedInput').value = '';
+                document.getElementById('actualInput').value = '';
+                document.getElementById('cumPlannedInput').value = '';
+                document.getElementById('cumActualInput').value = '';
+                document.getElementById('remarkInput').value = '';
+            }
+        }
+
+        async function fetchAPI(payload) {
+            try {
+                if (typeof google !== 'undefined' && google.script && google.script.run) {
+                    return await new Promise((resolve) => {
+                        const success = res => resolve(res);
+                        const fail = err => resolve({ error: "خطأ من جوجل: " + err.message });
+                        if(payload.action === 'login') google.script.run.withSuccessHandler(success).withFailureHandler(fail).authenticateUser(payload.username, payload.password);
+                        else if(payload.action === 'getChartData') google.script.run.withSuccessHandler(success).withFailureHandler(fail).getChartData(payload.chartName);
+                        else if(payload.action === 'getImages') google.script.run.withSuccessHandler(res => success({images: res})).withFailureHandler(fail).getImages(payload.chartName);
+                        else if(payload.action === 'uploadProgress') google.script.run.withSuccessHandler(success).withFailureHandler(fail).uploadProgress(payload.chartName, payload.dateStr, payload.beforeBase64, payload.afterBase64, payload.remark, payload.username, payload.planned, payload.actual, payload.cumPlanned, payload.cumActual);
+                    });
+                } else {
+                    const params = new URLSearchParams();
+                    params.append('data', JSON.stringify(payload));
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: params });
+                    const textResult = await response.text(); 
+                    try { return JSON.parse(textResult); } 
+                    catch(e) { return { error: "استجابة غير مفهومة من السيرفر. تأكد من نشر الرابط." }; }
+                }
+            } catch (error) { return { error: "مشكلة في شبكة الاتصال، السيرفر لا يستجيب." }; }
+        }
+
+        async function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const loader = document.getElementById('loginLoader');
+            const err = document.getElementById('loginError');
+            
+            if(!user || !pass) { err.innerHTML = 'الرجاء إدخال البيانات كاملة'; err.classList.remove('hidden'); return; }
+            btn.disabled = true; loader.classList.remove('hidden'); err.classList.add('hidden');
+
+            const res = await fetchAPI({ action: 'login', username: user, password: pass });
+            
+            if(res && res.success) {
+                currentRole = res.role;
+                currentUser = user;
+                document.getElementById('loginOverlay').style.opacity = '0';
+                setTimeout(() => document.getElementById('loginOverlay').style.display = 'none', 500);
+                if(currentRole === 'admin') document.getElementById('adminPanel').classList.remove('hidden');
+                loadDashboard(activeChartName, document.querySelector('.tab-btn.active'));
+            } else {
+                err.innerHTML = res.error || 'بيانات الدخول غير صحيحة.';
+                err.classList.remove('hidden');
+                btn.disabled = false; loader.classList.add('hidden');
+            }
+        }
+
+        async function loadDashboard(chartName, btnElement) {
+            activeChartName = chartName;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            const dataContainer = document.getElementById('dataContainer');
+            const gallery = document.getElementById('galleryContainer');
+            
+            try {
+                dataContainer.classList.add('fade-out');
+                await new Promise(resolve => setTimeout(resolve, 400)); 
+
+                gallery.innerHTML = '<div class="w-full text-center py-12"><div class="loader border-brand-neon border-t-brand-gold w-12 h-12 mb-4"></div><p class="text-brand-goldLight font-bold">جاري جلب بيانات المخطط...</p></div>';
+                dataContainer.classList.remove('fade-out');
+
+                const chartRes = await fetchAPI({ action: 'getChartData', chartName: chartName });
+                
+                if (chartRes && chartRes.error) {
+                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ في المخطط: ${chartRes.error}</div>`;
+                    return;
+                }
+
+                gallery.innerHTML = '<div class="w-full text-center py-12"><div class="loader border-brand-neon border-t-brand-gold w-12 h-12 mb-4"></div><p class="text-brand-goldLight font-bold">جاري جلب الصور والإثباتات...</p></div>';
+                const imgRes = await fetchAPI({ action: 'getImages', chartName: chartName });
+                
+                dataContainer.classList.add('fade-out');
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                if (imgRes && imgRes.error) {
+                    gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-triangle-exclamation text-4xl mb-3 block"></i>خطأ في الصور: ${imgRes.error}</div>`;
+                } else {
+                    if (chartRes && chartRes.rows) renderChart(chartRes);
+                    if (imgRes && imgRes.images) renderGallery(imgRes.images);
+                    else renderGallery([]);
+                }
+
+                dataContainer.classList.remove('fade-out');
+
+            } catch (err) {
+                gallery.innerHTML = `<div class="w-full text-center text-red-400 py-8 font-bold"><i class="fa-solid fa-xmark text-4xl mb-3 block"></i>حدث خطأ غير متوقع: ${err.message}</div>`;
+                dataContainer.classList.remove('fade-out');
+            }
+        }
+
+        function renderChart(data) {
+            try {
+                currentChartRows = data.rows; // حفظ البيانات للملء التلقائي
+
+                const labels = data.rows.map(r => r[0]); 
+                const planned = data.rows.map(r => r[1] || 0);
+                const actual = data.rows.map(r => r[2] || 0);
+                const cumPlanned = data.rows.map(r => r[3] || 0);
+                const cumActual = data.rows.map(r => r[4] || 0);
+                const remarks = data.rows.map(r => r[5] || ''); 
+
+                const dateSelect = document.getElementById('hijriDateSelect');
+                if(dateSelect) {
+                    dateSelect.innerHTML = '<option value="" disabled selected>اختر تاريخاً لعرض وتعديل بياناته...</option>';
+                    labels.forEach(date => {
+                        if(date) dateSelect.innerHTML += `<option value="${date}">${date}</option>`;
+                    });
+                }
+
+                if(myChart) myChart.destroy();
+                const canvas = document.getElementById('mainChart');
+                if(!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { type: 'line', label: 'Cum. Planned', data: cumPlanned, borderColor: '#ffffff', backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#D4AF37', fill: false, yAxisID: 'y' },
+                            { type: 'line', label: 'Cum. Actual', data: cumActual, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.5)', borderWidth: 4, pointRadius: 5, pointBackgroundColor: '#fff', fill: false, yAxisID: 'y' },
+                            { type: 'bar', label: 'Planned %', data: planned, backgroundColor: '#D4AF37', borderRadius: 6, yAxisID: 'y1' },
+                            { type: 'bar', label: 'Actual %', data: actual, backgroundColor: '#10b981', borderRadius: 6, yAxisID: 'y1' }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { size: 14, family: 'Cairo', weight: 'bold' }, padding: 20 } },
+                            tooltip: { backgroundColor: 'rgba(2, 44, 34, 0.95)', titleFont: { size: 16, family: 'Cairo' }, bodyFont: { size: 14, family: 'Cairo' }, borderColor: '#D4AF37', borderWidth: 1, padding: 15,
+                                callbacks: { afterBody: function(context) { const index = context[0].dataIndex; return remarks[index] ? `\n💬 ملاحظة:\n${remarks[index]}` : ''; } }
+                            }
+                        },
+                        scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' } }, y: { type: 'linear', position: 'left', beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } }, y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } } }
+                    }
+                });
+            } catch (err) { console.error("خطأ في المخطط:", err); }
+        }
+
+        function getDriveDirectUrl(driveUrl) {
+            if (!driveUrl) return 'https://placehold.co/600x400/111/333?text=لا+توجد+صورة';
+            const match = driveUrl.match(/id=([a-zA-Z0-9_-]+)/) || driveUrl.match(/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800-h600`;
+            return driveUrl;
+        }
+
+        function openImagePreview(url) {
+            const previewOverlay = document.createElement('div');
+            previewOverlay.id = 'imagePreviewOverlay';
+            previewOverlay.className = 'fixed inset-0 bg-black/95 z-[9999] flex flex-col justify-center items-center p-4 md:p-8 backdrop-blur-md transition-opacity duration-300 opacity-0';
+            
+            let embedUrl = url;
+            const match = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/d\/([a-zA-Z0-9_-]+)/);
+            if(match && match[1]) embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+
+            previewOverlay.innerHTML = `
+                <button onclick="closeImagePreview()" class="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-red-500 hover:bg-red-600 rounded-full w-12 h-12 flex items-center justify-center text-2xl transition z-50 border border-red-400">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-full max-w-6xl h-[85vh] bg-[#111] rounded-2xl overflow-hidden border-2 border-brand-gold shadow-[0_0_50px_rgba(212,175,55,0.4)] relative">
+                    <iframe src="${embedUrl}" class="w-full h-full border-none" allow="autoplay"></iframe>
+                </div>
+            `;
+            document.body.appendChild(previewOverlay);
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => previewOverlay.classList.remove('opacity-0'), 10);
+        }
+
+        function closeImagePreview() {
+            const overlay = document.getElementById('imagePreviewOverlay');
+            if(overlay) { overlay.classList.add('opacity-0'); document.body.style.overflow = ''; setTimeout(() => overlay.remove(), 300); }
+        }
+
+        function renderGallery(images) {
+            const container = document.getElementById('galleryContainer');
+            container.className = "flex flex-col gap-8 w-full"; 
+            if(images.length === 0) {
+                container.innerHTML = '<div class="w-full text-center text-gray-400 py-16 font-bold bg-black/20 rounded-3xl border border-dashed border-gray-700/50"><i class="fa-solid fa-folder-open text-6xl mb-6 block text-gray-500 opacity-50"></i>لا توجد إثباتات مصورة مضافة لهذا المخطط حتى الآن.</div>';
+                return;
+            }
+            container.innerHTML = '';
+            images.reverse().forEach(img => {
+                const directBefore = getDriveDirectUrl(img.before);
+                const directAfter = getDriveDirectUrl(img.after);
+                let dateDisplay = img.date;
+                if(img.timestamp) dateDisplay = img.timestamp.split(' ')[0] || img.date;
+
+                container.innerHTML += `
+                    <div class="w-full bg-[#031511] border border-brand-light/20 rounded-[2rem] p-6 md:p-8 transition-all duration-300 hover:border-brand-gold/50 hover:shadow-[0_0_40px_rgba(212,175,55,0.1)] relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-neon/5 rounded-full filter blur-[60px] pointer-events-none"></div>
+                        <div class="flex flex-col sm:flex-row justify-between items-center sm:items-end mb-8 border-b border-gray-800 pb-5 gap-4 relative z-10">
+                            <h4 class="text-xl md:text-2xl font-bold text-brand-goldLight flex items-center gap-3">
+                                <i class="fa-regular fa-calendar-check text-brand-neon text-2xl"></i> الصور المحدثة بتاريخ (${dateDisplay})
+                            </h4>
+                            <div class="flex flex-wrap justify-center items-center gap-3">
+                                <span class="text-sm text-gray-300 font-mono bg-black/60 px-4 py-2 rounded-xl border border-gray-800 shadow-inner">
+                                    <i class="fa-solid fa-clock text-brand-gold mr-1"></i> ${img.timestamp ? img.timestamp.split(' ')[1] : ''}
+                                </span>
+                                <span class="bg-gradient-to-r from-brand-main to-brand-dark text-white text-sm font-bold px-5 py-2 rounded-xl shadow-[0_4px_15px_rgba(0,0,0,0.5)] flex items-center gap-2 border border-brand-light/50">
+                                    <i class="fa-solid fa-user-shield text-brand-neon"></i> ${img.user}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col lg:flex-row gap-6 lg:gap-8 h-auto lg:h-[450px] relative z-10">
+                            <div class="flex-1 relative group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-red-900/50 hover:border-red-500 transition-all duration-300 shadow-2xl bg-[#0a0a0a]" onclick="openImagePreview('${img.before}')">
+                                <div class="absolute top-5 right-5 bg-red-600/90 text-white text-lg md:text-xl px-6 py-2.5 rounded-xl font-bold z-20 shadow-[0_0_20px_rgba(220,38,38,0.6)] flex items-center gap-2 backdrop-blur-sm border border-red-400/50"><i class="fa-solid fa-camera-rotate"></i> قبل الإزالة</div>
+                                <img src="${directBefore}" class="w-full h-full min-h-[300px] object-cover transform group-hover:scale-105 transition-transform duration-700" alt="قبل">
+                            </div>
+
+                            <div class="hidden lg:flex items-center justify-center w-16 z-10">
+                                <div class="w-16 h-16 bg-gradient-to-br from-brand-goldLight to-brand-gold rounded-full flex items-center justify-center text-black text-3xl shadow-[0_0_25px_rgba(212,175,55,0.7)] border-4 border-[#031511]"><i class="fa-solid fa-arrow-left"></i></div>
+                            </div>
+                            <div class="flex lg:hidden items-center justify-center h-8 z-10 -my-3">
+                                <div class="w-14 h-14 bg-gradient-to-br from-brand-goldLight to-brand-gold rounded-full flex items-center justify-center text-black text-2xl shadow-[0_0_20px_rgba(212,175,55,0.7)] border-4 border-[#031511]"><i class="fa-solid fa-arrow-down"></i></div>
+                            </div>
+
+                            <div class="flex-1 relative group cursor-pointer overflow-hidden rounded-[1.5rem] border-2 border-brand-main hover:border-brand-neon transition-all duration-300 shadow-2xl bg-[#0a0a0a]" onclick="openImagePreview('${img.after}')">
+                                <div class="absolute top-5 left-5 bg-brand-neon/90 text-black text-lg md:text-xl px-6 py-2.5 rounded-xl font-bold z-20 shadow-[0_0_20px_rgba(16,185,129,0.6)] flex items-center gap-2 backdrop-blur-sm border border-brand-light"><i class="fa-solid fa-wand-magic-sparkles"></i> بعد التحسين</div>
+                                <img src="${directAfter}" class="w-full h-full min-h-[300px] object-cover transform group-hover:scale-105 transition-transform duration-700" alt="بعد">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateFileLabel(inputId, labelId) {
+            const file = document.getElementById(inputId).files[0];
+            if(file) document.getElementById(labelId).innerHTML = `<span class="text-brand-neon font-bold text-lg"><i class="fa-solid fa-check-circle mr-2"></i> تم التحديد</span>`;
+        }
+
+        function getBase64(file) {
+            return new Promise((resolve) => {
+                if(!file) return resolve(null);
+                const reader = new FileReader(); reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+            });
+        }
+
+        async function submitAdminData() {
+            const dateStr = document.getElementById('hijriDateSelect').value;
+            const remark = document.getElementById('remarkInput').value;
+            const planned = document.getElementById('plannedInput').value;
+            const actual = document.getElementById('actualInput').value;
+            const cumPlanned = document.getElementById('cumPlannedInput').value;
+            const cumActual = document.getElementById('cumActualInput').value;
+            const fileBefore = document.getElementById('imgBefore').files[0];
+            const fileAfter = document.getElementById('imgAfter').files[0];
+
+            if(!dateStr) { alert('⚠️ يرجى اختيار تاريخ المستخلص'); return; }
+
+            const btn = document.getElementById('uploadBtn');
+            const txt = document.getElementById('uploadTxt');
+            const loader = document.getElementById('uploadLoader');
+            
+            btn.disabled = true; 
+            txt.innerText = (fileBefore || fileAfter) ? 'جاري ضغط ورفع الإثباتات...' : 'جاري تحديث البيانات...'; 
+            loader.classList.remove('hidden');
+
+            const base64Before = await getBase64(fileBefore);
+            const base64After = await getBase64(fileAfter);
+
+            const res = await fetchAPI({
+                action: 'uploadProgress', chartName: activeChartName, dateStr: dateStr, remark: remark,
+                beforeBase64: base64Before, afterBase64: base64After, username: currentUser,
+                planned: planned, actual: actual, cumPlanned: cumPlanned, cumActual: cumActual
+            });
+
+            if(res && res.success) {
+                alert('✅ ' + res.message);
+                document.getElementById('remarkInput').value = '';
+                document.getElementById('imgBefore').value = ''; document.getElementById('imgAfter').value = '';
+                document.getElementById('beforeLabel').innerText = 'اضغط لرفع صورة ما قبل الإزالة';
+                document.getElementById('afterLabel').innerText = 'اضغط لرفع صورة ما بعد التحسين';
+                loadDashboard(activeChartName); 
+            } else alert('❌ حدث خطأ: ' + (res.error || 'المحاولة لاحقاً.'));
+            
+            btn.disabled = false; txt.innerText = 'حفظ وتحديث البيانات'; loader.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
