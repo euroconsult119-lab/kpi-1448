@@ -138,14 +138,12 @@
     <video autoplay loop muted playsinline class="video-background2"><source src="https://dareenmedia.com/wp-content/uploads/2023/08/video1.mp4" type="video/mp4"></video>
     <div class="glow-orb orb-1"></div><div class="glow-orb orb-2"></div><div class="glow-orb orb-3"></div>
 
-    <!-- الناف بار (مضاف إليه قسم بيانات المستخدم وزر تسجيل الخروج) -->
     <header class="w-full px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center relative z-10 glass-card border-x-0 border-t-0 rounded-none mb-8 gap-4">
         <div class="flex items-center gap-4 md:gap-8">
             <img src="https://salogos.b-cdn.net/logos/png/1774895357588-ejqvv5kx.png" alt="الهيئة الملكية" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
             <img src="https://www.soqia.org.sa/rafed/uploads/website_partners/67c6d4bd13633.png" alt="كدانة" class="h-10 md:h-14 w-auto object-contain filter brightness-0 invert">
         </div>
 
-        <!-- 🌟 قسم التحكم والمستخدم (مخفي حتى تسجيل الدخول) -->
         <div id="userControls" class="hidden flex items-center gap-4 bg-black/40 px-5 py-2.5 rounded-2xl border border-brand-light/30 shadow-inner">
             <div class="flex items-center gap-2 text-brand-goldLight font-bold text-sm md:text-base">
                 <i class="fa-solid fa-user-shield text-brand-neon"></i>
@@ -205,7 +203,7 @@
                 </div>
             </div>
 
-            <!-- الحقول الرقمية للتحكم في المخطط مباشرة -->
+            <!-- الحقول الرقمية للتحكم في المخطط -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 relative z-10 bg-black/30 p-4 rounded-2xl border border-gray-700">
                 <div>
                     <label class="block text-gray-300 font-bold mb-2 text-sm text-center">المخطط (%)</label>
@@ -244,16 +242,43 @@
                 </div>
             </div>
 
-            <div class="text-center relative z-10">
+            <div class="text-center relative z-10 mb-8 border-b border-brand-light/30 pb-8">
                 <button onclick="submitAdminData()" id="uploadBtn" class="btn-neon w-full md:w-auto px-16 py-4 rounded-full text-white font-bold text-xl flex justify-center items-center gap-3 mx-auto">
                     <i class="fa-solid fa-arrows-rotate"></i> <span id="uploadTxt">حفظ وتحديث البيانات</span>
                     <div id="uploadLoader" class="loader hidden"></div>
                 </button>
             </div>
+
+            <!-- 🌟 قسم إضافة مستخدم جديد 🌟 -->
+            <div class="relative z-10">
+                <h4 class="text-xl font-bold text-brand-neon mb-4 flex items-center gap-2"><i class="fa-solid fa-user-plus text-brand-gold"></i> إضافة مستخدم جديد للنظام</h4>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-gray-300 font-bold mb-2 text-sm">اسم المستخدم</label>
+                        <input type="text" id="newUsername" class="custom-input p-2.5" placeholder="ادخل الاسم...">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 font-bold mb-2 text-sm">كلمة المرور</label>
+                        <input type="text" id="newPassword" class="custom-input p-2.5" placeholder="ادخل الباسوورد...">
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 font-bold mb-2 text-sm">الصلاحية</label>
+                        <select id="newRole" class="custom-select p-2.5">
+                            <option value="user">مستخدم عادي (User)</option>
+                            <option value="admin">مدير نظام (Admin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button onclick="addNewUser()" id="addUserBtn" class="bg-gray-700 hover:bg-gray-600 border border-gray-500 text-white w-full py-2.5 rounded-xl font-bold transition flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> <span id="addUserTxt">إضافة مستخدم</span>
+                            <div id="addUserLoader" class="loader hidden" style="width:16px; height:16px; border-width:2px;"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="dataContainer" class="fade-container">
-            <!-- المخطط البياني -->
             <div class="glass-card rounded-3xl p-4 md:p-8 mb-10 shadow-2xl relative">
                 <h3 class="text-xl md:text-2xl font-bold text-brand-goldLight mb-6 flex items-center gap-3">
                     <i class="fa-solid fa-chart-line text-brand-neon"></i> لوحة الإنجاز والمؤشرات الزمنية
@@ -263,7 +288,6 @@
                 </div>
             </div>
 
-            <!-- معرض الصور المحدث بالكامل -->
             <div class="glass-card rounded-3xl p-6 md:p-10 relative shadow-2xl border-t border-brand-neon/30">
                 <h3 class="text-2xl md:text-3xl font-bold text-brand-neon mb-8 flex items-center gap-3 border-b border-brand-light/30 pb-4">
                     <i class="fa-solid fa-photo-film text-brand-gold"></i> سجل الإثباتات والتوثيق البصري التفصيلي
@@ -272,7 +296,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <footer class="w-full text-center py-6 mt-8 relative z-10 glass-card border-x-0 border-b-0 rounded-none">
@@ -285,8 +308,8 @@
         Chart.defaults.color = '#e5e7eb';
         Chart.defaults.font.family = 'Cairo';
         
-        // 🚀 رابط السيرفر الخاص بك
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylMObl_a-X6gPx_A7KycEQoPllHaEiGQO1Qh14PMshv0P9e6BHSlPfkbJFwUKhZ4vN/exec';
+        // 🚀 تأكد من وضع رابط السيرفر المحدث هنا
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzB_FXONRPmO8TV-m4ysUPwFHUF_0usjaXVyI46AHy-VAKBxZOZz6Z937rodmKQy3N2/exec';
         
         let currentRole = '';
         let currentUser = '';
@@ -294,15 +317,11 @@
         let myChart = null;
         let currentChartRows = []; 
 
-        // 🌟 متغيرات نظام الجلسة (Session Timeout)
         let sessionTimer;
-        const SESSION_LIMIT_MS = 30 * 60 * 1000; // 30 دقيقة
+        const SESSION_LIMIT_MS = 30 * 60 * 1000; 
 
-        particlesJS('particles-js', {
-            "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#D4AF37" }, "shape": { "type": "circle" }, "opacity": { "value": 0.3, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#10b981", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } }
-        });
+        particlesJS('particles-js', { "particles": { "number": { "value": 60, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#D4AF37" }, "shape": { "type": "circle" }, "opacity": { "value": 0.3, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#10b981", "opacity": 0.2, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "out_mode": "out" } }, "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" } } } });
 
-        // 🌟 إدارة الجلسات (Session Management)
         function startSessionTimer() {
             clearTimeout(sessionTimer);
             sessionTimer = setTimeout(() => {
@@ -311,75 +330,47 @@
             }, SESSION_LIMIT_MS);
         }
 
-        function resetSessionTimer() {
-            if (currentUser !== '') {
-                startSessionTimer();
-            }
-        }
+        function resetSessionTimer() { if (currentUser !== '') startSessionTimer(); }
 
-        // تجديد الجلسة عند أي نشاط من المستخدم
         document.addEventListener('mousemove', resetSessionTimer);
         document.addEventListener('keypress', resetSessionTimer);
         document.addEventListener('click', resetSessionTimer);
         document.addEventListener('scroll', resetSessionTimer);
 
-        function handleEnter(e) {
-            if(e.key === 'Enter') login();
-        }
+        function handleEnter(e) { if(e.key === 'Enter') login(); }
 
-        // 🌟 دالة تسجيل الخروج الآمن
         function logout() {
-            // تفريغ البيانات
-            currentUser = '';
-            currentRole = '';
-            currentChartRows = [];
-            clearTimeout(sessionTimer);
-
-            // إخفاء اللوحات
+            currentUser = ''; currentRole = ''; currentChartRows = []; clearTimeout(sessionTimer);
             document.getElementById('userControls').classList.add('hidden');
             document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('username').value = ''; document.getElementById('password').value = '';
             
-            // إعادة تعيين الحقول
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            
-            // إظهار شاشة الدخول بأنيميشن
             const overlay = document.getElementById('loginOverlay');
-            overlay.style.display = 'flex';
-            setTimeout(() => overlay.style.opacity = '1', 50);
+            overlay.style.display = 'flex'; setTimeout(() => overlay.style.opacity = '1', 50);
 
-            // إعادة تعيين الداش بورد للوضع الافتراضي
             if(myChart) myChart.destroy();
             document.getElementById('galleryContainer').innerHTML = '';
         }
 
-        // تهيئة التقويم الهجري
         function initHijriModal() {
             const hDay = document.getElementById('hDay');
             const hMonth = document.getElementById('hMonth');
             const hYear = document.getElementById('hYear');
             const months = ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
-            
             for(let i=1; i<=30; i++) hDay.innerHTML += `<option value="${i.toString().padStart(2, '0')}">${i}</option>`;
             months.forEach((m, i) => hMonth.innerHTML += `<option value="${(i+1).toString().padStart(2, '0')}">${m}</option>`);
             for(let i=1446; i<=1455; i++) hYear.innerHTML += `<option value="${i}">${i}</option>`;
         }
         initHijriModal();
 
-        function openHijriModal() {
-            document.getElementById('hijriModal').classList.remove('pointer-events-none', 'opacity-0');
-        }
-
-        function closeHijriModal() {
-            document.getElementById('hijriModal').classList.add('pointer-events-none', 'opacity-0');
-        }
+        function openHijriModal() { document.getElementById('hijriModal').classList.remove('pointer-events-none', 'opacity-0'); }
+        function closeHijriModal() { document.getElementById('hijriModal').classList.add('pointer-events-none', 'opacity-0'); }
 
         function confirmHijriDate() {
             const d = document.getElementById('hDay').value;
             const m = document.getElementById('hMonth').value;
             const y = document.getElementById('hYear').value;
             const newDate = `${d}/${m}/${y}`;
-            
             const select = document.getElementById('hijriDateSelect');
             let exists = false;
             for(let i=0; i<select.options.length; i++){
@@ -407,10 +398,8 @@
                 document.getElementById('cumActualInput').value = rowData[4] || 0;
                 document.getElementById('remarkInput').value = rowData[5] || '';
             } else {
-                document.getElementById('plannedInput').value = '';
-                document.getElementById('actualInput').value = '';
-                document.getElementById('cumPlannedInput').value = '';
-                document.getElementById('cumActualInput').value = '';
+                document.getElementById('plannedInput').value = ''; document.getElementById('actualInput').value = '';
+                document.getElementById('cumPlannedInput').value = ''; document.getElementById('cumActualInput').value = '';
                 document.getElementById('remarkInput').value = '';
             }
         }
@@ -426,6 +415,7 @@
                         else if(payload.action === 'getChartData') google.script.run.withSuccessHandler(success).withFailureHandler(fail).getChartData(payload.chartName);
                         else if(payload.action === 'getImages') google.script.run.withSuccessHandler(res => success({images: res})).withFailureHandler(fail).getImages(payload.chartName);
                         else if(payload.action === 'uploadProgress') google.script.run.withSuccessHandler(success).withFailureHandler(fail).uploadProgress(payload.chartName, payload.dateStr, payload.beforeBase64, payload.afterBase64, payload.remark, payload.username, payload.planned, payload.actual, payload.cumPlanned, payload.cumActual);
+                        else if(payload.action === 'addUser') google.script.run.withSuccessHandler(success).withFailureHandler(fail).addUser(payload.newUsername, payload.newPassword, payload.newRole);
                     });
                 } else {
                     const params = new URLSearchParams();
@@ -454,7 +444,6 @@
                 currentRole = res.role;
                 currentUser = user;
                 
-                // إظهار تحكم المستخدم وبدء المؤقت
                 document.getElementById('userControls').classList.remove('hidden');
                 document.getElementById('displayUsername').innerText = currentUser;
                 startSessionTimer();
@@ -468,6 +457,38 @@
                 err.classList.remove('hidden');
                 btn.disabled = false; loader.classList.add('hidden');
             }
+        }
+
+        // 🌟 دالة إضافة المستخدم الجديد
+        async function addNewUser() {
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const newRole = document.getElementById('newRole').value;
+
+            if(!newUsername || !newPassword) {
+                alert("يرجى إدخال اسم المستخدم وكلمة المرور.");
+                return;
+            }
+
+            const btn = document.getElementById('addUserBtn');
+            const txt = document.getElementById('addUserTxt');
+            const loader = document.getElementById('addUserLoader');
+
+            btn.disabled = true; txt.innerText = "جاري الإضافة..."; loader.classList.remove('hidden');
+
+            const res = await fetchAPI({
+                action: 'addUser', newUsername: newUsername, newPassword: newPassword, newRole: newRole
+            });
+
+            if(res && res.success) {
+                alert('✅ ' + res.message);
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newPassword').value = '';
+            } else {
+                alert('❌ خطأ: ' + (res.error || 'تعذر إضافة المستخدم.'));
+            }
+
+            btn.disabled = false; txt.innerText = "إضافة مستخدم"; loader.classList.add('hidden');
         }
 
         async function loadDashboard(chartName, btnElement) {
@@ -515,7 +536,6 @@
         function renderChart(data) {
             try {
                 currentChartRows = data.rows; 
-
                 const labels = data.rows.map(r => r[0]); 
                 const planned = data.rows.map(r => r[1] || 0);
                 const actual = data.rows.map(r => r[2] || 0);
